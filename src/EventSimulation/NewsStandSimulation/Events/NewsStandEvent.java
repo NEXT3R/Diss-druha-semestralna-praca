@@ -6,8 +6,8 @@ import EventSimulation.NewsStandSimulation.NewsStandSimulationCore;
 
 public abstract class NewsStandEvent extends Event {
     protected Customer customer;
-    public NewsStandEvent(double time, double duration, NewsStandSimulationCore newsCore,Customer customer) {
-        super(time, duration,newsCore);
+    public NewsStandEvent(double time,  NewsStandSimulationCore newsCore,Customer customer) {
+        super(time,newsCore);
         this.customer = customer;
     }
 

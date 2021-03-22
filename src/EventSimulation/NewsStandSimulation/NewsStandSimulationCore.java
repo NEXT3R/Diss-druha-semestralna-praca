@@ -22,7 +22,7 @@ public class NewsStandSimulationCore extends EventSimulationCore {
         this.customerArrivalGenerator = new NewsStandRandomGenerator(5);
         this.customerServiceGenerator = new NewsStandRandomGenerator(4);
         Customer customer = new Customer(customerArrivalGenerator.getExponentialValue());
-        super.events.add(new CustomerArrivalEvent(customer.getArrivalTime(),0,this,customer));
+        super.events.add(new CustomerArrivalEvent(customer.getArrivalTime(),this,customer));
     }
 
     public NewsStandRandomGenerator getCustomerArrivalGenerator() {

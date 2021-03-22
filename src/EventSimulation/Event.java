@@ -2,11 +2,11 @@ package EventSimulation;
 
 public abstract class Event implements Comparable<Event>{
     protected double time;
-    protected double duration;
+
     protected EventSimulationCore eventCore;
-    public Event(double time, double duration,EventSimulationCore eventCore) {
+    public Event(double time,EventSimulationCore eventCore) {
         this.time = time;
-        this.duration=duration;
+
         this.eventCore=eventCore;
     }
 
@@ -19,9 +19,6 @@ public abstract class Event implements Comparable<Event>{
         return time;
     }
 
-    public double getDuration() {
-        return duration;
-    }
 
     protected abstract void  execute();
 

@@ -8,8 +8,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class CustomerArrivalEvent extends NewsStandEvent {
-    public CustomerArrivalEvent(double time, double duration, NewsStandSimulationCore newsCore, Customer customer) {
-        super(time, duration, newsCore, customer);
+    public CustomerArrivalEvent(double time,  NewsStandSimulationCore newsCore, Customer customer) {
+        super(time,  newsCore, customer);
     }
 
     @Override
@@ -21,7 +21,6 @@ public class CustomerArrivalEvent extends NewsStandEvent {
 
         if (queue.size() == 0 && !((NewsStandSimulationCore) super.eventCore).isServiceInProgress()) {
             scheduler.add(new BeginServiceEvent(super.time,
-                    ((NewsStandSimulationCore) super.eventCore).getServiceTime(),
                     (NewsStandSimulationCore) super.eventCore, super.customer));
         }
         queue.add(super.customer);
@@ -33,7 +32,7 @@ public class CustomerArrivalEvent extends NewsStandEvent {
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();
         scheduler.add(
                 new CustomerArrivalEvent(newCustomer.getArrivalTime(),
-                        0, ((NewsStandSimulationCore) super.eventCore), newCustomer));
+                        ((NewsStandSimulationCore) super.eventCore), newCustomer));
     }
 
 
