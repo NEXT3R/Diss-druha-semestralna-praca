@@ -12,16 +12,12 @@ public class NewsStandSimulationCore extends EventSimulationCore {
     private NewsStandRandomGenerator customerServiceGenerator;
     private boolean serviceInProgress;
     private double queueWaitingTime;
-    private double queueSize;
     private double servicedCustomers;
-    private double lastEventOccurenceTime;
     public NewsStandSimulationCore(double replicationTime) {
         super.requestedSimulationTime = replicationTime;
         this.waitingCustomerQueue = new LinkedList<>();
         this.servicedCustomers = 0;
         this.serviceInProgress = false;
-        queueWaitingTime = 0;
-        queueSize = 0;
         queueWaitingTime = 0;
         this.customerArrivalGenerator = new NewsStandRandomGenerator(5);
         this.customerServiceGenerator = new NewsStandRandomGenerator(4);
@@ -53,12 +49,9 @@ public class NewsStandSimulationCore extends EventSimulationCore {
         return this.customerServiceGenerator.getExponentialValue();
     }
 
-    public void onCustomerArrival(double size){
-        queueSize += (lastEventOccurenceTime-actualSimulationTime)*size;
-    }
 
-    public void onServiceStart(double size,double queueTime){
-        queueSize += (actualSimulationTime-lastEventOccurenceTime)*size;
+
+    public void onServiceStart(double queueTime){
         queueWaitingTime+=queueTime;
         servicedCustomers++;
 
@@ -68,17 +61,15 @@ public class NewsStandSimulationCore extends EventSimulationCore {
 
     }
 
-    public double getLastEventOccurenceTime() {
-        return lastEventOccurenceTime;
-    }
 
-    public void setLastEventOccurenceTime(double lastEventOccurenceTime) {
-        this.lastEventOccurenceTime = lastEventOccurenceTime;
-    }
 
     @Override
     public void afterSimulation() {
-        System.out.println("Average queue length is: " + this.queueSize/super.actualSimulationTime);
-        System.out.println("Average waiting time in queue is: " +this.queueWaitingTime / servicedCustomers);
+//        System.out.println("Customers in queue: " + this.waitingCustomerQueue.size());
+//        System.out.println("Serviced customers: " +servicedCustomers);
+//        System.out.println("Actual simulation time: " + actualSimulationTime);
+//        System.out.println("queue waiting time :" + this.queueWaitingTime);
+        System.out.println("Average queue length is: " + this.queueWaitingTime/super.actualSimulationTime);
+        System.out.println("Average waiting time in queue is: " +(this.queueWaitingTime / servicedCustomers));
     }
 }

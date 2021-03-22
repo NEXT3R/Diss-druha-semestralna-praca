@@ -17,7 +17,8 @@ public class BeginServiceEvent extends NewsStandEvent {
         Queue<Customer> queue = ((NewsStandSimulationCore) super.eventCore).getWaitingCustomerQueue();
         super.customer = queue.poll();
         super.customer.setServiceBeginTime(super.time);
-        ((NewsStandSimulationCore) super.eventCore).onServiceStart(queue.size() + 1,
+
+        ((NewsStandSimulationCore) super.eventCore).onServiceStart(
                 super.customer.getServiceBeginTime() - super.customer.getArrivalTime());
         ((NewsStandSimulationCore) super.eventCore).setServiceInProgress(true);
         super.customer.setTimeInQueue(calculateTimeInQueue());
