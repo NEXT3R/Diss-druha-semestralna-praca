@@ -17,7 +17,6 @@ public abstract class EventSimulationCore extends SimulationCore {
             }
             currEvent.execute();
             this.actualSimulationTime = currEvent.getTime();
-
         }
     }
 

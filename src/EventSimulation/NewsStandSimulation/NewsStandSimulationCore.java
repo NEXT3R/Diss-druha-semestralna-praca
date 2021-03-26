@@ -19,8 +19,8 @@ public class NewsStandSimulationCore extends EventSimulationCore {
         this.servicedCustomers = 0;
         this.serviceInProgress = false;
         queueWaitingTime = 0;
-        this.customerArrivalGenerator = new NewsStandRandomGenerator(5);
-        this.customerServiceGenerator = new NewsStandRandomGenerator(4);
+//        this.customerArrivalGenerator = new NewsStandRandomGenerator(5*60);
+//        this.customerServiceGenerator = new NewsStandRandomGenerator(4*60);
         Customer customer = new Customer(customerArrivalGenerator.getExponentialValue());
         super.events.add(new CustomerArrivalEvent(customer.getArrivalTime(),this,customer));
     }
@@ -54,12 +54,9 @@ public class NewsStandSimulationCore extends EventSimulationCore {
     public void onServiceStart(double queueTime){
         queueWaitingTime+=queueTime;
         servicedCustomers++;
-
     }
 
-    public void onServiceEnd(Customer customer){
 
-    }
 
 
 

@@ -1,10 +1,11 @@
-import EventSimulation.NewsStandSimulation.NewsStandSimulationCore;
+import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 import Simulation.RandomSeedGenerator;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         RandomSeedGenerator.initialize(5);
-        NewsStandSimulationCore simCore = new NewsStandSimulationCore(300000000);
+        VaccinationCentreSimulationCore simCore =
+                new VaccinationCentreSimulationCore(200000000, 1, 1, 1);
         simCore.simulate(1);
     }
 }
