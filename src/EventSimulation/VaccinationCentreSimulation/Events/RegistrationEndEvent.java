@@ -17,7 +17,6 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
     @Override
     protected void execute() {
         Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getExaminationQueue();
-        PriorityQueue<Event> scheduler = super.eventCore.getEvents();
         ((VaccinationCentreSimulationCore) super.eventCore).onRegistrationEnd();
 
         super.patient.setRegistrationEndTime(super.time);
@@ -38,8 +37,7 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
                     }
                 }
             }
-
-            scheduler.add(new ExaminationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, super.patient, doctor));
+            super.eventCore.getEvents().add(new ExaminationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, super.patient, doctor));
         } else {
             queue.add(super.patient);
         }
@@ -58,7 +56,6 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
                         getPatientWorkerDecisions().get(workers.size() - 2).nextDouble();
                 Personal worker = null;
-                //TODO might be bad
                 for (int i = 0; i < workers.size(); i++) {
                     if (decision < (1.0 + i) / workers.size()) {
                         worker = workers.remove(i);

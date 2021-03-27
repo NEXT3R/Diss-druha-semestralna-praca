@@ -237,7 +237,6 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         examinedPatients++;
     }
 
-
     public void onVaccinationStart(double queueTime) {
         vaccinationWaitingTime += queueTime;
     }
@@ -250,6 +249,98 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.replicationNonComingPatients++;
     }
 
+    public void returnDoctor(Personal doctor) {
+        this.availableDoctors.add(doctor);
+    }
+
+    public void returnNurse(Personal nurse) {
+        this.availableNurses.add(nurse);
+    }
+
+    public void returnWorker(Personal worker) {
+        this.availableWorkers.add(worker);
+    }
+
+    public int getDoctorsSize() {
+        return this.availableDoctors.size();
+    }
+
+    public int getNurseSize() {
+        return this.availableNurses.size();
+    }
+
+    public int getWorkersSize() {
+        return this.availableWorkers.size();
+    }
+
+    public Personal getRandomDoctor() {
+        double decision = this.patientDoctorDecisions.get(this.availableDoctors.size() - 2).nextDouble();
+        Personal doctor = null;
+        for (int i = 0; i < availableDoctors.size(); i++) {
+            if (decision < (1.0 + i) / availableDoctors.size()) {
+                return this.availableDoctors.remove(i);
+            }
+        }
+        return null;
+    }
+
+    public Personal getRandomNurse() {
+        double decision = this.patientNurseDecisions.get(this.availableNurses.size() - 2).nextDouble();
+        Personal nurse = null;
+        for (int i = 0; i < availableNurses.size(); i++) {
+            if (decision < (1.0 + i) / availableNurses.size()) {
+                return this.availableNurses.remove(i);
+            }
+        }
+        return null;
+    }
+
+    public Personal getRandomWorker() {
+        double decision = this.patientWorkerDecisions.get(this.availableWorkers.size() - 2).nextDouble();
+        Personal worker = null;
+        for (int i = 0; i < availableWorkers.size(); i++) {
+            if (decision < (1.0 + i) / availableWorkers.size()) {
+                return this.availableWorkers.remove(i);
+            }
+        }
+        return null;
+    }
+
+    public void addToRegQueue(Patient patient) {
+        this.registrationQueue.add(patient);
+    }
+
+    public Patient pollFromRegQueue() {
+        return this.registrationQueue.poll();
+    }
+
+    public void addToVacQueue(Patient patient) {
+        this.vaccinationQueue.add(patient);
+    }
+
+    public Patient pollFromVacQueue() {
+        return this.vaccinationQueue.poll();
+    }
+
+    public void addToExamQueue(Patient patient) {
+        this.examinationQueue.add(patient);
+    }
+
+    public Patient pollFromExamQueue() {
+        return this.examinationQueue.poll();
+    }
+
+    public int getExamQueueSize(){
+        return this.examinationQueue.size();
+    }
+
+    public int getRegQueueSize(){
+        return this.registrationQueue.size();
+    }
+
+    public int getVacQueueSize(){
+        return this.vaccinationQueue.size();
+    }
     @Override
     public void afterSimulation() {
         System.out.println("Average non coming patients " + this.simNonComingPatients / super.actualReplication);

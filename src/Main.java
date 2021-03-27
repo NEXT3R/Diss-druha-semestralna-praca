@@ -6,8 +6,8 @@ public class Main {
         RandomSeedGenerator.initialize(5);
         VaccinationCentreSimulationCore simCore =
                 new VaccinationCentreSimulationCore(32400, 5, 6, 3);
-        double time = System.currentTimeMillis()/1000.0;
-        simCore.simulate(1);
-        System.out.println(System.currentTimeMillis()/1000.0 -time );
+        double time = System.currentTimeMillis() / 1000.0;
+        simCore.simulate(100000);
+        System.out.println(System.currentTimeMillis() / 1000.0 - time);
     }
 }

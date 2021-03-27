@@ -17,9 +17,8 @@ public class RegistrationStartEvent extends VaccinationCentreEvent {
     protected void execute() {
         super.patient.setRegistrationStartTime(super.time);
         ((VaccinationCentreSimulationCore) super.eventCore).onRegistrationStart(
-                super.patient.getRegistrationStartTime() - super.patient.getArrivalTime());
-        PriorityQueue<Event> scheduler = super.eventCore.getEvents();
-        scheduler.add(new RegistrationEndEvent(super.time +
+                super.time - super.patient.getArrivalTime());
+        super.eventCore.getEvents().add(new RegistrationEndEvent(super.time +
                 ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationDurationTime(),
                 (VaccinationCentreSimulationCore) super.eventCore, super.patient, super.personal));
     }
