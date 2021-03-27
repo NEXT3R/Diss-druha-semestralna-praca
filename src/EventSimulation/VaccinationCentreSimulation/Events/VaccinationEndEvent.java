@@ -16,33 +16,41 @@ public class VaccinationEndEvent extends VaccinationCentreEvent {
         super(time, newsCore, patient, personal);
     }
 
+    @Override
     protected void execute() {
-        Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getWaitingRoom();
+        LinkedList<Patient> waitingRoom = ((VaccinationCentreSimulationCore) super.eventCore).getWaitingRoom();
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();
+        ((VaccinationCentreSimulationCore) super.eventCore).onVaccinationEnd();
 
         super.patient.setVaccinationEndTime(super.time);
         super.personal.increaseWorkTime(super.time - patient.getVaccinationStartTime());
-//        scheduler.add(new WaitEventStart(super.time, (VaccinationCentreSimulationCore) super.eventCore, super.patient));
+
+        scheduler.add(new WaitEventStart(this.time, (VaccinationCentreSimulationCore) super.eventCore,patient));
+            waitingRoom.add(super.patient);
         ((VaccinationCentreSimulationCore) super.eventCore).getAvailableNurses().add(super.personal);
-        queue.add(super.patient);
         this.planVaccinationStart();
     }
 
     public void planVaccinationStart() {
         Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getVaccinationQueue();
+        LinkedList<Personal> nurses = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableNurses();
+
         if (queue.size() > 0) {
-            LinkedList<Personal> nurses = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableNurses();
-            double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                    getPatientDoctorDecisions().get(nurses.size() - 2).nextDouble();
-            Personal nurse = null;
-            //TODO might be bad
-            for (int i = 0; i < nurses.size(); i++) {
-                if (decision < (1.0 + i) / nurses.size()) {
-                    nurse = nurses.remove(i);
-                    break;
+            if (nurses.size() == 1) {
+                super.eventCore.getEvents().add(new VaccinationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,((VaccinationCentreSimulationCore) super.eventCore).getVaccinationQueue().poll(), nurses.remove(0)));
+            } else if (nurses.size() > 1) {
+                double decision = ((VaccinationCentreSimulationCore) super.eventCore).
+                        getPatientNurseDecisions().get(nurses.size() - 2).nextDouble();
+                Personal nurse = null;
+                //TODO might be bad
+                for (int i = 0; i < nurses.size(); i++) {
+                    if (decision < (1.0 + i) / nurses.size()) {
+                        nurse = nurses.remove(i);
+                        break;
+                    }
                 }
+                super.eventCore.getEvents().add(new VaccinationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,((VaccinationCentreSimulationCore) super.eventCore).getVaccinationQueue().poll(), nurse));
             }
-            super.eventCore.getEvents().add(new ExaminationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,super.patient, nurse));
         }
     }
 }

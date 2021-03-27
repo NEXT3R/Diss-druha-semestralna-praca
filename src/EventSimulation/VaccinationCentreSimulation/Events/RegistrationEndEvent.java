@@ -18,24 +18,28 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
     protected void execute() {
         Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getExaminationQueue();
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();
+        ((VaccinationCentreSimulationCore) super.eventCore).onRegistrationEnd();
 
         super.patient.setRegistrationEndTime(super.time);
         super.personal.increaseWorkTime(super.time - patient.getRegistrationStartTime());
 
         Personal doctor = null;
         LinkedList<Personal> doctors = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableDoctors();
-        //TODO might be bad
         if (queue.size() == 0 && doctors.size() > 0) {
-            double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                    getPatientDoctorDecisions().get(doctors.size() - 1).nextDouble();
-            //TODO might be bad
-            for (int i = 0; i < doctors.size(); i++) {
-                if (decision < (1.0 + i) / doctors.size()) {
-                    doctor = doctors.remove(i);
-                    break;
+            if (doctors.size() == 1) {
+                doctor = doctors.remove(0);
+            } else {
+                double decision = ((VaccinationCentreSimulationCore) super.eventCore).
+                        getPatientDoctorDecisions().get(doctors.size() - 2).nextDouble();
+                for (int i = 0; i < doctors.size(); i++) {
+                    if (decision < (1.0 + i) / doctors.size()) {
+                        doctor = doctors.remove(i);
+                        break;
+                    }
                 }
             }
-            scheduler.add(new ExaminationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,super.patient, doctor));
+
+            scheduler.add(new ExaminationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, super.patient, doctor));
         } else {
             queue.add(super.patient);
         }
@@ -45,12 +49,11 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
 
     public void planRegistrationStart() {
         Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue();
-        ((VaccinationCentreSimulationCore) super.eventCore).onRegistrationEnd();
         LinkedList<Personal> workers = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableWorkers();
 
         if (queue.size() > 0) {
             if (workers.size() == 1) {
-                super.eventCore.getEvents().add(new RegistrationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue().poll(), workers.remove(0)));
+                super.eventCore.getEvents().add(new RegistrationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue().poll(), workers.remove(0)));
             } else if (workers.size() > 1) {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
                         getPatientWorkerDecisions().get(workers.size() - 2).nextDouble();
@@ -62,7 +65,7 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
                         break;
                     }
                 }
-                super.eventCore.getEvents().add(new RegistrationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue().poll(), worker));
+                super.eventCore.getEvents().add(new RegistrationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue().poll(), worker));
             }
         }
     }

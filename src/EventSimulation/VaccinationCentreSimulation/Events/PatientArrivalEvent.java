@@ -22,7 +22,7 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
             LinkedList<Personal> workers = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableWorkers();
             if (queue.size() == 0 && workers.size() > 0) {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                        getPatientWorkerDecisions().get(workers.size() - 1).nextDouble();
+                        getPatientWorkerDecisions().get(workers.size() - 2).nextDouble();
                 Personal worker = null;
                 //TODO might be bad
                 for (int i = 0; i < workers.size(); i++) {

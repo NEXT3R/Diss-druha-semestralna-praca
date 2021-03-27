@@ -16,15 +16,20 @@ import java.util.Queue;
 import java.util.Random;
 
 public class VaccinationCentreSimulationCore extends EventSimulationCore {
+    //Queues
     private Queue<Patient> registrationQueue;
     private Queue<Patient> examinationQueue;
     private Queue<Patient> vaccinationQueue;
     private LinkedList<Patient> waitingRoom;
-
+    //Personal lists
     private LinkedList<Personal> availableWorkers;
     private LinkedList<Personal> availableDoctors;
     private LinkedList<Personal> availableNurses;
-
+    //Personal count
+    private int workersCount;
+    private int nursesCount;
+    private int doctorsCount;
+    //Generators
     private ExponentialRandomGenerator patientExaminationGenerator;
     private EvenContinousRandomGenerator patientRegistrationGenerator;
     private EvenDiscreteRandomGenerator nonComingPatientsGenerator;
@@ -34,7 +39,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private ArrayList<Random> patientWorkerDecisions;
     private ArrayList<Random> patientDoctorDecisions;
     private ArrayList<Random> patientNurseDecisions;
-
+    //replication queues waiting times
     private double registrationWaitingTime;
     private double examinationWaitingTime;
     private double vaccinationWaitingTime;
@@ -44,25 +49,33 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private double registeredPatients;
     private double examinedPatients;
     private double vaccinatedPatients;
-
+    //simulation queues waiting times
+    private double simRegWTime;
+    private double simExamWTime;
+    private double simVacWTime;
+    private double simWRoomTime;
+    private double simRegisteredPatients;
+    private double simExaminedPatients;
+    private double simVaccinatedPatients;
+    private double simTotalTime;
+    private double simNonComingPatients;
     private double patientCameProbability;
-    //delete, just for debug
+    private double simAvgRegQ;
+    private double simAvgExamQ;
+    private double simAvgVacQ;
+
+    //just for debug
     private int replicationNonComingPatients;
 
     public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount) {
         super.requestedSimulationTime = replicationTime;
-        this.registeredPatients = 0;
-        this.examinedPatients = 0;
-        this.vaccinatedPatients = 0;
-        this.initQueues();
-        this.initTimes();
-        this.initLists(workersCount, doctorsCount, nursesCount);
+        this.workersCount = workersCount;
+        this.doctorsCount = doctorsCount;
+        this.nursesCount = nursesCount;
+
         this.initGenerators(workersCount, doctorsCount, nursesCount);
-        Patient patient = new Patient(0);
-        super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
-        this.nonComingPatients = nonComingPatientsGenerator.getDiscreteEvenValue();
-        this.patientCameProbability = nonComingPatients / (replicationTime / 60);
-        this.replicationNonComingPatients = 0;
+
+
     }
 
     private void initQueues() {
@@ -95,15 +108,15 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.patientVaccinationGenerator = new TriangularRandomGenerator(20, 100, 75);
         this.patientCameRandom = new Random(RandomSeedGenerator.getNextSeed());
         patientWorkerDecisions = new ArrayList<>();
-        for (int i = 0; i < workersCount; i++) {
+        for (int i = 0; i < workersCount - 1; i++) {
             patientWorkerDecisions.add(new Random(RandomSeedGenerator.getNextSeed()));
         }
         patientDoctorDecisions = new ArrayList<>();
-        for (int i = 0; i < doctorsCount; i++) {
+        for (int i = 0; i < doctorsCount - 1; i++) {
             patientDoctorDecisions.add(new Random(RandomSeedGenerator.getNextSeed()));
         }
         patientNurseDecisions = new ArrayList<>();
-        for (int i = 0; i < nursesCount; i++) {
+        for (int i = 0; i < nursesCount - 1; i++) {
             patientNurseDecisions.add(new Random(RandomSeedGenerator.getNextSeed()));
         }
     }
@@ -168,7 +181,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return this.patientExaminationGenerator.getExponentialValue();
     }
 
-    public double getVaccinationDurationTime(){
+    public double getVaccinationDurationTime() {
         return this.patientVaccinationGenerator.getTriangularValue();
     }
 
@@ -239,17 +252,72 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 
     @Override
     public void afterSimulation() {
-//        System.out.println("Customers in queue: " + this.waitingCustomerQueue.size());
-//        System.out.println("Serviced customers: " +servicedCustomers);
-//        System.out.println("Actual simulation time: " + actualSimulationTime);
-//        System.out.println("queue waiting time :" + this.queueWaitingTime);
-        System.out.println(this.nonComingPatients);
-        System.out.println("Non coming patients " + this.replicationNonComingPatients);
-        System.out.println("Average registration queue length is: " + this.registrationWaitingTime / super.actualSimulationTime);
-        System.out.println("Average registration waiting time in queue is: " + ((this.registrationWaitingTime) / registeredPatients));
-        System.out.println("Average examination queue length is: " + this.examinationWaitingTime / super.actualSimulationTime);
-        System.out.println("Average examination waiting time in queue is: " + ((this.examinationWaitingTime) / examinedPatients));
-        System.out.println("Average vaccination queue length is: " + this.vaccinationWaitingTime / super.actualSimulationTime);
-        System.out.println("Average vaccination waiting time in queue is: " + ((this.vaccinationWaitingTime) / vaccinatedPatients));
+        System.out.println("Average non coming patients " + this.simNonComingPatients / super.actualReplication);
+        System.out.println("Average registration queue length is: " + (this.simAvgRegQ) / super.actualReplication);
+        System.out.println("Average registration waiting time in queue is: " + (this.simRegWTime / super.actualReplication));
+        System.out.println("Average examination queue length is: " + (this.simExamWTime / super.actualReplication));
+        System.out.println("Average examination waiting time in queue is: " + (this.simAvgExamQ / super.actualReplication));
+        System.out.println("Average vaccination queue length is: " + (this.simVacWTime / super.actualReplication));
+        System.out.println("Average vaccination waiting time in queue is: " + (this.simAvgVacQ / super.actualReplication));
+
+    }
+
+    @Override
+    public void beforeSimulation() {
+        simRegWTime = 0;
+        simExamWTime = 0;
+        simVacWTime = 0;
+        simWRoomTime = 0;
+        simRegisteredPatients = 0;
+        simExaminedPatients = 0;
+        simVaccinatedPatients = 0;
+        simTotalTime = 0;
+        simNonComingPatients = 0;
+        simAvgRegQ = 0;
+        simAvgExamQ = 0;
+        simAvgVacQ = 0;
+
+    }
+
+    @Override
+    public void beforeReplication() {
+        this.registeredPatients = 0;
+        this.examinedPatients = 0;
+        this.vaccinatedPatients = 0;
+
+        this.initQueues();
+        this.initTimes();
+        this.initLists(workersCount, doctorsCount, nursesCount);
+        Patient patient = new Patient(0);
+        super.events.clear();
+        super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
+        this.nonComingPatients = nonComingPatientsGenerator.getDiscreteEvenValue();
+        this.patientCameProbability = nonComingPatients / (requestedSimulationTime / 60);
+        this.replicationNonComingPatients = 0;
+        this.actualSimulationTime = 0;
+    }
+
+    @Override
+    public void afterReplication() {
+//        System.out.println(this.nonComingPatients);
+//        System.out.println("Non coming patients " + this.replicationNonComingPatients);
+//        System.out.println("Average registration queue length is: " + this.registrationWaitingTime / super.actualSimulationTime);
+//        System.out.println("Average registration waiting time in queue is: " + ((this.registrationWaitingTime) / registeredPatients));
+//        System.out.println("Average examination queue length is: " + this.examinationWaitingTime / super.actualSimulationTime);
+//        System.out.println("Average examination waiting time in queue is: " + ((this.examinationWaitingTime) / examinedPatients));
+//        System.out.println("Average vaccination queue length is: " + this.vaccinationWaitingTime / super.actualSimulationTime);
+//        System.out.println("Average vaccination waiting time in queue is: " + ((this.vaccinationWaitingTime) / vaccinatedPatients));
+        simRegWTime += registrationWaitingTime / this.actualSimulationTime;
+        simExamWTime += examinationWaitingTime / this.actualSimulationTime;
+        simVacWTime += vaccinationWaitingTime / this.actualSimulationTime;
+        simWRoomTime += waitingRoomTime;
+        simRegisteredPatients += registeredPatients;
+        simExaminedPatients += examinedPatients;
+        simVaccinatedPatients += vaccinatedPatients;
+        simTotalTime += actualSimulationTime;
+        simNonComingPatients += replicationNonComingPatients;
+        simAvgRegQ += this.registrationWaitingTime / this.registeredPatients;
+        simAvgExamQ += this.examinationWaitingTime / this.examinedPatients;
+        simAvgVacQ += this.vaccinationWaitingTime / this.vaccinatedPatients;
     }
 }

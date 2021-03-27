@@ -15,12 +15,12 @@ public class VaccinationStartEvent extends VaccinationCentreEvent {
 
     @Override
     protected void execute() {
-        Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getVaccinationQueue();
-        super.patient = queue.poll();
         super.patient.setVaccinationStartTime(super.time);
+        ((VaccinationCentreSimulationCore) super.eventCore).onVaccinationStart(
+                super.time - super.patient.getExaminationEndTime());
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();
-        scheduler.add(new VaccinationEndEvent(super.getTime() +
-                ((VaccinationCentreSimulationCore) super.eventCore).getPatientVaccinationGenerator().getTriangularValue(),
+        scheduler.add(new VaccinationEndEvent(super.time +
+                ((VaccinationCentreSimulationCore) super.eventCore).getVaccinationDurationTime(),
                 (VaccinationCentreSimulationCore) super.eventCore, super.patient, super.personal));
     }
 }
