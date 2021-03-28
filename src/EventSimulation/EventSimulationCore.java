@@ -11,7 +11,7 @@ public abstract class EventSimulationCore extends SimulationCore {
     protected boolean paused;
 
     public void doReplication() throws SimulationTimeException {
-        while (!events.isEmpty() && this.actualSimulationTime < requestedSimulationTime) {
+        while (!events.isEmpty() && this.actualSimulationTime < requestedSimulationTime && super.running) {
             if (!paused) {
                 Event currEvent = events.poll();
                 if (currEvent.getTime() < this.actualSimulationTime) {

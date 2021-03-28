@@ -52,12 +52,7 @@ public class AppForm extends JFrame implements SimDelegate {
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                paused = true;
-                progressRepBar.setValue(0);
-                progressTimeBar.setValue(0);
-                progressRepLabel.setText("0%");
-                progressTimeLabel.setText("0%");
-                runButton.setEnabled(false);
+                resetGUI();
                 controller.simulate(
                         Integer.parseInt(workersTF.getText()),
                         Integer.parseInt(doctorsTF.getText()),
@@ -66,14 +61,14 @@ public class AppForm extends JFrame implements SimDelegate {
                         Double.parseDouble(reqSimTimeTF.getText()),
                         Integer.parseInt(repCountTF.getText()),
                         delegates);
-                runButton.setEnabled(true);
             }
         });
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 controller.stop();
-                runButton.setEnabled(true);
+                paused = false;
+                pauseButton.setText("Pause");
             }
         });
         pauseButton.addActionListener(new ActionListener() {
@@ -82,11 +77,12 @@ public class AppForm extends JFrame implements SimDelegate {
                 if (!paused) {
                     pauseButton.setText("Continue");
                     controller.pause();
+                    paused = true;
                 } else {
                     pauseButton.setText("Pause");
                     controller.continueSimulation();
+                    paused = false;
                 }
-                paused=!paused;
             }
         });
     }
@@ -114,6 +110,13 @@ public class AppForm extends JFrame implements SimDelegate {
         this.setVisible(true);
     }
 
+    private void resetGUI(){
+        paused = false;
+        progressRepBar.setValue(0);
+        progressTimeBar.setValue(0);
+        progressRepLabel.setText("0%");
+        progressTimeLabel.setText("0%");
+    }
     @Override
     public void refreshSimTime(VaccinationCentreSimulationCore core) {
         double time = core.getActualSimulationTime();
@@ -132,7 +135,7 @@ public class AppForm extends JFrame implements SimDelegate {
 
     @Override
     public void refreshProgressBar(VaccinationCentreSimulationCore core) {
-        double simulationProgress = ((double) core.getActualReplication() / core.getReplicationCount()) * 100;
+        double simulationProgress = (((double) core.getActualReplication()) / core.getReplicationCount()) * 100;
         progressRepBar.setValue((int) simulationProgress);
         progressRepLabel.setText((int) simulationProgress + "%");
 
@@ -140,7 +143,19 @@ public class AppForm extends JFrame implements SimDelegate {
         progressTimeBar.setValue((int) timeProgress);
         progressTimeLabel.setText((int) timeProgress + "%");
 
-        repCountL.setText("Replications count: " + core.getActualReplication());
-        repTimeL.setText("Actual Replication Time: " + core.getActualSimulationTime() + " seconds");
+        repCountL.setText("Replications done: " + (core.getActualReplication()));
+        repTimeL.setText("Actual Replication Time: " + (int)core.getActualSimulationTime() + " seconds");
     }
+
+    @Override
+    public void disableRunButton() {
+        runButton.setEnabled(false);
+    }
+
+    @Override
+    public void enableRunButton() {
+        runButton.setEnabled(true);
+    }
+
+
 }

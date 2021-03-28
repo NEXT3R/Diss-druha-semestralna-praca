@@ -344,6 +344,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 
     @Override
     public void afterSimulation() {
+        this.delegates.get(0).enableRunButton();
         System.out.println("Average non coming patients " + this.simNonComingPatients / super.actualReplication);
         System.out.println("Average registration queue length is: " + (this.simAvgRegQ) / super.actualReplication);
         System.out.println("Average registration waiting time in queue is: " + (this.simRegWTime / super.actualReplication));
@@ -357,6 +358,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     @Override
     public void beforeSimulation() {
         super.running = true;
+        this.delegates.get(0).disableRunButton();
         simRegWTime = 0;
         simExamWTime = 0;
         simVacWTime = 0;
@@ -392,14 +394,6 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 
     @Override
     public void afterReplication() {
-//        System.out.println(this.nonComingPatients);
-//        System.out.println("Non coming patients " + this.replicationNonComingPatients);
-//        System.out.println("Average registration queue length is: " + this.registrationWaitingTime / super.actualSimulationTime);
-//        System.out.println("Average registration waiting time in queue is: " + ((this.registrationWaitingTime) / registeredPatients));
-//        System.out.println("Average examination queue length is: " + this.examinationWaitingTime / super.actualSimulationTime);
-//        System.out.println("Average examination waiting time in queue is: " + ((this.examinationWaitingTime) / examinedPatients));
-//        System.out.println("Average vaccination queue length is: " + this.vaccinationWaitingTime / super.actualSimulationTime);
-//        System.out.println("Average vaccination waiting time in queue is: " + ((this.vaccinationWaitingTime) / vaccinatedPatients));
         simRegWTime += registrationWaitingTime / this.actualSimulationTime;
         simExamWTime += examinationWaitingTime / this.actualSimulationTime;
         simVacWTime += vaccinationWaitingTime / this.actualSimulationTime;
