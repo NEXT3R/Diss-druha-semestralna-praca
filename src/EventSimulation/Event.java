@@ -6,7 +6,6 @@ public abstract class Event implements Comparable<Event>{
     protected EventSimulationCore eventCore;
     public Event(double time,EventSimulationCore eventCore) {
         this.time = time;
-
         this.eventCore=eventCore;
     }
 
@@ -21,6 +20,7 @@ public abstract class Event implements Comparable<Event>{
 
 
     protected abstract void  execute();
+    protected void afterExecute(){};
 
     public EventSimulationCore getEventCore() {
         return eventCore;

@@ -8,21 +8,30 @@ public abstract class SimulationCore {
     protected volatile boolean running;
     protected int replicationCount;
 
+    public void simulateOnCustomThread(int rCount){
+      Thread thread = new Thread(){
+           public void run(){
+               simulate(rCount);
+           }
+       };
+       thread.start();
+    }
+
     public void simulate(int rCount) {
-        this.actualReplication = 0;
-        this.replicationCount = rCount;
-        beforeSimulation();
-        for (int i = 0; i < this.replicationCount; i++) {
-            actualReplication=i+1;
-            beforeReplication();
-            try {
-                doReplication();
-            } catch (SimulationTimeException e) {
-                System.out.println(e.getMessage());
-            }
-            afterReplication();
-        }
-        afterSimulation();
+                this.actualReplication = 0;
+                this.replicationCount = rCount;
+                beforeSimulation();
+                for (int i = 0; i < this.replicationCount && running; i++) {
+                    actualReplication = i + 1;
+                    beforeReplication();
+                    try {
+                        doReplication();
+                    } catch (SimulationTimeException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    afterReplication();
+                }
+                afterSimulation();
     }
 
 
@@ -44,5 +53,13 @@ public abstract class SimulationCore {
 
     public void stop() {
         running = false;
+    }
+
+    public int getActualReplication() {
+        return actualReplication;
+    }
+
+    public int getReplicationCount() {
+        return replicationCount;
     }
 }

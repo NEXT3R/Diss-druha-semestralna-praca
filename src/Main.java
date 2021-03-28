@@ -1,13 +1,8 @@
-import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
-import Simulation.RandomSeedGenerator;
+import EventSimulation.GUI.AppForm;
+import EventSimulation.VaccinationCentreSimulation.AppController;
 
 public class Main {
     public static void main(String[] args) {
-        RandomSeedGenerator.initialize(5);
-        VaccinationCentreSimulationCore simCore =
-                new VaccinationCentreSimulationCore(32400, 5, 6, 3);
-        double time = System.currentTimeMillis() / 1000.0;
-        simCore.simulate(100000);
-        System.out.println(System.currentTimeMillis() / 1000.0 - time);
+        new AppForm(new AppController());
     }
 }

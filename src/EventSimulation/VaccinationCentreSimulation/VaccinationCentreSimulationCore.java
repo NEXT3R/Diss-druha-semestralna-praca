@@ -1,5 +1,6 @@
 package EventSimulation.VaccinationCentreSimulation;
 
+import EventSimulation.Event;
 import EventSimulation.EventSimulationCore;
 import EventSimulation.Generators.EvenContinousRandomGenerator;
 import EventSimulation.Generators.EvenDiscreteRandomGenerator;
@@ -10,10 +11,7 @@ import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.Events.PatientArrivalEvent;
 import Simulation.RandomSeedGenerator;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
+import java.util.*;
 
 public class VaccinationCentreSimulationCore extends EventSimulationCore {
     //Queues
@@ -67,15 +65,17 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     //just for debug
     private int replicationNonComingPatients;
 
+    //GUI
+    private List<SimDelegate> delegates;
+
     public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount) {
+        this.delegates = new ArrayList<>();
         super.requestedSimulationTime = replicationTime;
         this.workersCount = workersCount;
         this.doctorsCount = doctorsCount;
         this.nursesCount = nursesCount;
 
         this.initGenerators(workersCount, doctorsCount, nursesCount);
-
-
     }
 
     private void initQueues() {
@@ -330,17 +330,18 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return this.examinationQueue.poll();
     }
 
-    public int getExamQueueSize(){
+    public int getExamQueueSize() {
         return this.examinationQueue.size();
     }
 
-    public int getRegQueueSize(){
+    public int getRegQueueSize() {
         return this.registrationQueue.size();
     }
 
-    public int getVacQueueSize(){
+    public int getVacQueueSize() {
         return this.vaccinationQueue.size();
     }
+
     @Override
     public void afterSimulation() {
         System.out.println("Average non coming patients " + this.simNonComingPatients / super.actualReplication);
@@ -355,6 +356,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 
     @Override
     public void beforeSimulation() {
+        super.running = true;
         simRegWTime = 0;
         simExamWTime = 0;
         simVacWTime = 0;
@@ -410,5 +412,20 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         simAvgRegQ += this.registrationWaitingTime / this.registeredPatients;
         simAvgExamQ += this.examinationWaitingTime / this.examinedPatients;
         simAvgVacQ += this.vaccinationWaitingTime / this.vaccinatedPatients;
+    }
+
+
+    public void registerDelegate(SimDelegate delegate) {
+        this.delegates.add(delegate);
+    }
+
+    public void refreshGUI(Event event) {
+        switch (event.getClass().getName()) {
+            default: {
+                delegates.get(0).refreshSimTime(this);
+                delegates.get(0).refreshProgressBar(this);
+            }
+        }
+
     }
 }

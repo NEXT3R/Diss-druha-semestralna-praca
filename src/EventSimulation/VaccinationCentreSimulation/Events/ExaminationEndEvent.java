@@ -6,8 +6,6 @@ import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 
 import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
 
 public class ExaminationEndEvent extends VaccinationCentreEvent {
     public ExaminationEndEvent(double time, VaccinationCentreSimulationCore newsCore, Patient patient, Personal personal) {

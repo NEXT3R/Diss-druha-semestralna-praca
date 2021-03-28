@@ -25,6 +25,10 @@ public abstract class VaccinationCentreEvent extends Event {
 
     protected abstract void execute();
 
+    protected void afterExecute() {
+        ((VaccinationCentreSimulationCore)this.eventCore).refreshGUI(this);
+    }
+
     public Patient getPatient() {
         return patient;
     }
