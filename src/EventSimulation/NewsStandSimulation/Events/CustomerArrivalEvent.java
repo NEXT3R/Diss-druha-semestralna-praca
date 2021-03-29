@@ -14,7 +14,6 @@ public class CustomerArrivalEvent extends NewsStandEvent {
 
     @Override
     protected void execute() {
-        //TODO CHYBNY CAS
 
         Queue<Customer> queue = ((NewsStandSimulationCore) super.eventCore).getWaitingCustomerQueue();
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();

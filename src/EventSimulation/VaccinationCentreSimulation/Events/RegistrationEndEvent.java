@@ -29,7 +29,7 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
                 doctor = doctors.remove(0);
             } else {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                        getPatientDoctorDecisions().get(doctors.size() - 2).nextDouble();
+                        getPatientDoctorDecisions().get(doctors.size() - 1).nextDouble();
                 for (int i = 0; i < doctors.size(); i++) {
                     if (decision < (1.0 + i) / doctors.size()) {
                         doctor = doctors.remove(i);
@@ -54,7 +54,7 @@ public class RegistrationEndEvent extends VaccinationCentreEvent {
                 super.eventCore.getEvents().add(new RegistrationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore, ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue().poll(), workers.remove(0)));
             } else if (workers.size() > 1) {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                        getPatientWorkerDecisions().get(workers.size() - 2).nextDouble();
+                        getPatientWorkerDecisions().get(workers.size() - 1).nextDouble();
                 Personal worker = null;
                 for (int i = 0; i < workers.size(); i++) {
                     if (decision < (1.0 + i) / workers.size()) {

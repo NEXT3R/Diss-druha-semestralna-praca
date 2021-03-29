@@ -1,6 +1,7 @@
 package EventSimulation;
 
 import Simulation.SimulationCore;
+import EventSimulation.VaccinationCentreSimulation.Events.VaccinationSystemEvent;
 
 import java.util.PriorityQueue;
 
@@ -9,26 +10,34 @@ public abstract class EventSimulationCore extends SimulationCore {
     protected double actualSimulationTime;
     protected double requestedSimulationTime;
     protected boolean paused;
-
+    protected boolean turbo;
+    protected long sleepDuration = 500;
     public void doReplication() throws SimulationTimeException {
+        if(!turbo){
+            events.add(new VaccinationSystemEvent(60,this,this.sleepDuration));
+        }
         while (!events.isEmpty() && this.actualSimulationTime < requestedSimulationTime && super.running) {
             if (!paused) {
                 Event currEvent = events.poll();
                 if (currEvent.getTime() < this.actualSimulationTime) {
                     throw new SimulationTimeException();
                 }
+                this.actualSimulationTime = currEvent.getTime();
+
                 currEvent.execute();
                 currEvent.afterExecute();
-                this.actualSimulationTime = currEvent.getTime();
-            } else{
-                //optimalization
+            } else {
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    public void setSleepDuration(long sleepDuration) {
+        this.sleepDuration = sleepDuration;
     }
 
     public PriorityQueue<Event> getEvents() {
@@ -47,7 +56,12 @@ public abstract class EventSimulationCore extends SimulationCore {
         this.paused = true;
     }
 
+    public boolean isTurbo() {
+        return turbo;
+    }
+
     public void continueReplication() {
         this.paused = false;
+
     }
 }

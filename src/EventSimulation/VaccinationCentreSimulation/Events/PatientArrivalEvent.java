@@ -20,7 +20,7 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
             LinkedList<Personal> workers = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableWorkers();
             if (queue.size() == 0 && workers.size() > 0) {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                        getPatientWorkerDecisions().get(workers.size() - 2).nextDouble();
+                        getPatientWorkerDecisions().get(workers.size() - 1).nextDouble();
                 Personal worker = null;
                 for (int i = 0; i < workers.size(); i++) {
                     if (decision < (1.0 + i) / workers.size()) {
@@ -37,6 +37,7 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
             ((VaccinationCentreSimulationCore) super.eventCore).increaseNonComingPatients();
         }
         this.planNewArrival();
+
     }
 
     private void planNewArrival() {

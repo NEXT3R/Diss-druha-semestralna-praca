@@ -38,9 +38,8 @@ public class VaccinationEndEvent extends VaccinationCentreEvent {
                 super.eventCore.getEvents().add(new VaccinationStartEvent(super.time, (VaccinationCentreSimulationCore) super.eventCore,((VaccinationCentreSimulationCore) super.eventCore).getVaccinationQueue().poll(), nurses.remove(0)));
             } else if (nurses.size() > 1) {
                 double decision = ((VaccinationCentreSimulationCore) super.eventCore).
-                        getPatientNurseDecisions().get(nurses.size() - 2).nextDouble();
+                        getPatientNurseDecisions().get(nurses.size() - 1).nextDouble();
                 Personal nurse = null;
-                //TODO might be bad
                 for (int i = 0; i < nurses.size(); i++) {
                     if (decision < (1.0 + i) / nurses.size()) {
                         nurse = nurses.remove(i);

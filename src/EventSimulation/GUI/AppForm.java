@@ -28,10 +28,8 @@ public class AppForm extends JFrame implements SimDelegate {
     private JButton pauseButton;
     private JButton stopButton;
     private JLabel regQL;
-    private JLabel regQAvgCL;
+    private JLabel regQAvgWTL;
     private JLabel regQAvgLL;
-    private JLabel regWorkOcc;
-    private JLabel regWorkAvgOcc;
     private JLabel simDays;
     private JLabel simHours;
     private JLabel simMinutes;
@@ -40,13 +38,39 @@ public class AppForm extends JFrame implements SimDelegate {
     private JLabel progressTimeLabel;
     private JLabel repCountL;
     private JLabel repTimeL;
+    private JLabel regPersUtilL;
+    private JLabel regPersAvgUtilL;
+    private JLabel examQL;
+    private JLabel examQAvgWTL;
+    private JLabel examQAvgLL;
+    private JLabel vacQL;
+    private JLabel vacQAvgWTL;
+    private JLabel vacQAvgLL;
+    private JLabel waitRL;
+    private JLabel waitAvgWTL;
+    private JLabel waitAvgLL;
+    private JLabel regPersAvailableL;
+    private JLabel regPersOccupiedL;
+    private JLabel examPersAvailableL;
+    private JLabel examPersOccupiedL;
+    private JLabel examPersUtilL;
+    private JLabel examPersAvgUtilL;
+    private JLabel vacPersAvailableL;
+    private JLabel vacPersOccupiedL;
+    private JLabel vacPersUtilL;
+    private JLabel vacPersAvgUtilL;
+    private JSlider speedSlider;
+    private JLabel currentTimeL;
     private AppController controller;
     private boolean paused;
+    private boolean turbo;
 
     public AppForm(AppController controller) {
         this.controller = controller;
         this.setup();
         this.paused = false;
+        this.turbo = false;
+
         ArrayList<SimDelegate> delegates = new ArrayList<>();
         delegates.add(this);
         runButton.addActionListener(new ActionListener() {
@@ -60,7 +84,9 @@ public class AppForm extends JFrame implements SimDelegate {
                         Integer.parseInt(seedTF.getText()),
                         Double.parseDouble(reqSimTimeTF.getText()),
                         Integer.parseInt(repCountTF.getText()),
-                        delegates);
+                        delegates,
+                        turbo,
+                        1000-speedSlider.getValue());
             }
         });
         stopButton.addActionListener(new ActionListener() {
@@ -85,6 +111,12 @@ public class AppForm extends JFrame implements SimDelegate {
                 }
             }
         });
+        turboCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                turbo = turboCheckBox.isSelected();
+            }
+        });
     }
 
     private void setup() {
@@ -106,17 +138,23 @@ public class AppForm extends JFrame implements SimDelegate {
                 }
             }
         });
+        DefaultBoundedRangeModel model = new DefaultBoundedRangeModel(500, 0, 100, 1000);
+        speedSlider.setModel(model);
+        this.speedSlider.setMajorTickSpacing(225);
+        this.speedSlider.setPaintTicks(true);
+        this.speedSlider.setPaintLabels(true);
         this.pack();
         this.setVisible(true);
     }
 
-    private void resetGUI(){
+    private void resetGUI() {
         paused = false;
         progressRepBar.setValue(0);
         progressTimeBar.setValue(0);
         progressRepLabel.setText("0%");
         progressTimeLabel.setText("0%");
     }
+
     @Override
     public void refreshSimTime(VaccinationCentreSimulationCore core) {
         double time = core.getActualSimulationTime();
@@ -131,6 +169,11 @@ public class AppForm extends JFrame implements SimDelegate {
         this.simHours.setText("Hours: " + (int) hour);
         this.simMinutes.setText("Minutes: " + (int) minute);
         this.simSeconds.setText("Seconds: " + (int) second);
+
+        double startHour = 8*60*60;
+        double currentHour = 8 + hour;
+
+        this.currentTimeL.setText(String.format("%02d:%02d:%02d",(int)(currentHour%24), (int)minute ,(int)second));
     }
 
     @Override
@@ -143,19 +186,77 @@ public class AppForm extends JFrame implements SimDelegate {
         progressTimeBar.setValue((int) timeProgress);
         progressTimeLabel.setText((int) timeProgress + "%");
 
-        repCountL.setText("Replications done: " + (core.getActualReplication()));
-        repTimeL.setText("Actual Replication Time: " + (int)core.getActualSimulationTime() + " seconds");
+        repCountL.setText("Replication in progress: " + (core.getActualReplication()));
+        repTimeL.setText("Actual Replication Time: " + (int) core.getActualSimulationTime() + " seconds");
     }
 
     @Override
-    public void disableRunButton() {
+    public void beforeSimulationEvent() {
         runButton.setEnabled(false);
     }
 
     @Override
-    public void enableRunButton() {
+    public void afterSimulationEvent(VaccinationCentreSimulationCore core) {
         runButton.setEnabled(true);
+        this.refreshRegistration(core);
+        this.refreshExamination(core);
+        this.refreshProgressBar(core);
+        this.refreshSimTime(core);
+        this.refreshVaccination(core);
+        this.refreshWaitingRoom(core);
     }
 
+    @Override
+    public void refreshRegistration(VaccinationCentreSimulationCore core) {
+        regQL.setText(String.format("Patients in queue: " + core.getRegQueueSize()));
+        regQAvgWTL.setText(String.format("Average queue waiting time: %.4f", (core.getSimAvgRegQ() +
+                core.getRegistrationWaitingTime() / core.getRegisteredPatients()) / core.getActualReplication()));
+        regQAvgLL.setText(String.format("Average queue length: %.4f",
+                (core.getSimRegWTime() + ((core.getRegistrationWaitingTime() / core.getActualSimulationTime())))
+                        / core.getActualReplication()));
+        regPersAvailableL.setText("Available workers: " + core.getWorkersSize());
+        regPersOccupiedL.setText("Occupied workers:" + (core.getWorkersCount() - core.getWorkersSize()));
+        regPersUtilL.setText(String.format("Worker utilization: %.4f", (core.getWorkersUtilization() /
+                core.getActualSimulationTime()) * 100) + "%");
+        regPersAvgUtilL.setText(String.format("Average worker utilization: %.4f",
+                ((core.getSimWorkersUtilization() * 100 + ((core.getWorkersUtilization() /
+                        core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+    }
 
+    @Override
+    public void refreshExamination(VaccinationCentreSimulationCore core) {
+        examQL.setText("Patients in queue: " + core.getExamQueueSize());
+        examQAvgWTL.setText(String.format("Average queue waiting time: %.4f", (core.getSimAvgExamQ() + core.getExaminationWaitingTime() / core.getExaminedPatients()) / core.getActualReplication()));
+        examQAvgLL.setText(String.format("Average queue length: %.4f",
+                (core.getSimExamWTime() + ((core.getExaminationWaitingTime() / core.getActualSimulationTime())))
+                        / core.getActualReplication()));
+        examPersAvailableL.setText("Available doctors:" + core.getDoctorsSize());
+        examPersOccupiedL.setText("Occupied doctors:" + (core.getDoctorsCount() - core.getDoctorsSize()));
+        examPersUtilL.setText(String.format("Doctor utilization: %.4f", (core.getDoctorsUtilization() /
+                core.getActualSimulationTime()) * 100) + "%");
+        examPersAvgUtilL.setText(String.format("Average doctor utilization: %.4f",
+                ((core.getSimDoctorsUtilization() * 100 + ((core.getDoctorsUtilization() /
+                        core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+    }
+
+    @Override
+    public void refreshVaccination(VaccinationCentreSimulationCore core) {
+        vacQL.setText("Patients in queue: " + core.getVacQueueSize());
+        vacQAvgWTL.setText(String.format("Average queue waiting time: %.4f",  (core.getSimAvgVacQ() + core.getVaccinationWaitingTime() / core.getVaccinatedPatients()) / core.getActualReplication()));
+        vacQAvgLL.setText(String.format("Average queue length: %.4f",
+                (core.getSimVacWTime() + ((core.getVaccinationWaitingTime() / core.getActualSimulationTime())))
+                        / core.getActualReplication()));
+        vacPersAvailableL.setText("Available nurses:" + core.getNursesSize());
+        vacPersOccupiedL.setText("Occupied nurses:" + (core.getNursesCount() - core.getNursesSize()));
+        vacPersUtilL.setText(String.format("Nurse utilization: %.4f", (core.getNursesUtilization() /
+                core.getActualSimulationTime()) * 100));
+        vacPersAvgUtilL.setText(String.format("Average nurse utilization: %.4f" ,
+                ((core.getSimNursesUtilization() * 100 + ((core.getNursesUtilization() /
+                        core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+    }
+
+    @Override
+    public void refreshWaitingRoom(VaccinationCentreSimulationCore core) {
+        waitRL.setText("Patients in waiting room: " + core.getWaitingRoomSize());
+    }
 }
