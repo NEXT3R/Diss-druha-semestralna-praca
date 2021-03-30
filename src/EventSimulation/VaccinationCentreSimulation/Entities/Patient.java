@@ -11,16 +11,21 @@ public class Patient {
     private double waitStartTime;
     private double waitEndTime;
     private double waitDuration;
+    private Location location;
+
     public Patient(double arrivalTime) {
         this.arrivalTime = arrivalTime;
+        this.location = Location.REGISTRATION_QUEUE;
     }
 
     public void setRegistrationStartTime(double registrationStartTime) {
         this.registrationStartTime = registrationStartTime;
+        this.location = Location.REGISTRATION;
     }
 
     public void setRegistrationEndTime(double registrationEndTime) {
         this.registrationEndTime = registrationEndTime;
+        this.location = Location.EXAMINATION_QUEUE;
     }
 
 
@@ -49,6 +54,7 @@ public class Patient {
     }
 
     public void setExaminationStartTime(double examinationStartTime) {
+        this.location = Location.EXAMINATION;
         this.examinationStartTime = examinationStartTime;
     }
 
@@ -57,6 +63,7 @@ public class Patient {
     }
 
     public void setExaminationEndTime(double examinationEndTime) {
+        this.location = Location.VACCINATION_QUEUE;
         this.examinationEndTime = examinationEndTime;
     }
 
@@ -65,6 +72,7 @@ public class Patient {
     }
 
     public void setVaccinationStartTime(double vaccinationStartTime) {
+        this.location = Location.VACCINATION;
         this.vaccinationStartTime = vaccinationStartTime;
     }
 
@@ -73,6 +81,7 @@ public class Patient {
     }
 
     public void setVaccinationEndTime(double vaccinationEndTime) {
+        this.location = Location.WAITING_ROOM;
         this.vaccinationEndTime = vaccinationEndTime;
     }
 
@@ -91,4 +100,21 @@ public class Patient {
     public void setWaitEndTime(double waitEndTime) {
         this.waitEndTime = waitEndTime;
     }
+
+
+    @Override
+    public String toString() {
+        return String.format("Arrival time: %.4f", arrivalTime) +
+                String.format(" Registration Start Time: %.4f", registrationStartTime) +
+                String.format(" Registration End Time: %.4f", registrationEndTime) +
+                String.format(" Examination Start Time: %.4f ", examinationStartTime) +
+                String.format(" Examination End Time: %.4f ", examinationEndTime) +
+                String.format(" Vaccination Start Time: %.4f ", vaccinationStartTime) +
+                String.format(" Vaccination End Time: %.4f ", vaccinationEndTime) +
+                String.format(" Wait Start Time: %.4f ", waitStartTime) +
+                String.format(" Wait End Time: %.4f", waitEndTime) +
+                String.format(" WaitDuration: %.4f", waitDuration) +
+               " Location: " + location.resolveStringValue(location);
+    }
+
 }

@@ -17,5 +17,6 @@ public class WaitEventEnd extends VaccinationCentreEvent{
         LinkedList<Patient> waitingRoom = ((VaccinationCentreSimulationCore) super.eventCore).getWaitingRoom();
         super.patient.setWaitEndTime(super.time);
         waitingRoom.remove(super.patient);
+        ((VaccinationCentreSimulationCore)super.getEventCore()).removePatient(super.patient);
     }
 }

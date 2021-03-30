@@ -1,6 +1,7 @@
 package EventSimulation.GUI;
 
 import EventSimulation.VaccinationCentreSimulation.AppController;
+import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.SimDelegate;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 
@@ -10,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class AppForm extends JFrame implements SimDelegate {
     private JPanel rootPanel;
@@ -61,16 +63,20 @@ public class AppForm extends JFrame implements SimDelegate {
     private JLabel vacPersAvgUtilL;
     private JSlider speedSlider;
     private JLabel currentTimeL;
+    private JButton displayRegButton;
+    private JButton displayPatientsButton;
     private AppController controller;
     private boolean paused;
     private boolean turbo;
-
+    private PersonalFrame personalFrame;
+    private PatientFrame patientFrame;
     public AppForm(AppController controller) {
         this.controller = controller;
         this.setup();
         this.paused = false;
         this.turbo = false;
-
+        this.personalFrame = new PersonalFrame();
+        this.patientFrame = new PatientFrame();
         ArrayList<SimDelegate> delegates = new ArrayList<>();
         delegates.add(this);
         runButton.addActionListener(new ActionListener() {
@@ -115,6 +121,18 @@ public class AppForm extends JFrame implements SimDelegate {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 turbo = turboCheckBox.isSelected();
+            }
+        });
+        displayRegButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                personalFrame.setVisible(true);
+            }
+        });
+        displayPatientsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                patientFrame.setVisible(true);
             }
         });
     }
@@ -221,6 +239,9 @@ public class AppForm extends JFrame implements SimDelegate {
         regPersAvgUtilL.setText(String.format("Average worker utilization: %.4f",
                 ((core.getSimWorkersUtilization() * 100 + ((core.getWorkersUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+
+       personalFrame.refreshRegistration(core);
+
     }
 
     @Override
@@ -237,6 +258,7 @@ public class AppForm extends JFrame implements SimDelegate {
         examPersAvgUtilL.setText(String.format("Average doctor utilization: %.4f",
                 ((core.getSimDoctorsUtilization() * 100 + ((core.getDoctorsUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+        personalFrame.refreshExamination(core);
     }
 
     @Override
@@ -253,10 +275,17 @@ public class AppForm extends JFrame implements SimDelegate {
         vacPersAvgUtilL.setText(String.format("Average nurse utilization: %.4f" ,
                 ((core.getSimNursesUtilization() * 100 + ((core.getNursesUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
+        personalFrame.refreshVaccination(core);
     }
 
     @Override
     public void refreshWaitingRoom(VaccinationCentreSimulationCore core) {
         waitRL.setText("Patients in waiting room: " + core.getWaitingRoomSize());
     }
+
+    @Override
+    public void refreshPatients(VaccinationCentreSimulationCore core) {
+        patientFrame.refreshPatients(core);
+    }
+
 }

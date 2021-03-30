@@ -19,13 +19,13 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private Queue<Patient> examinationQueue;
     private Queue<Patient> vaccinationQueue;
     private LinkedList<Patient> waitingRoom;
-    //Personal lists
     private LinkedList<Personal> availableWorkers;
     private LinkedList<Personal> availableDoctors;
     private LinkedList<Personal> availableNurses;
     private LinkedList<Personal> allWorkers;
     private LinkedList<Personal> allDoctors;
     private LinkedList<Personal> allNurses;
+    private LinkedList<Patient> allPatients;
     //Personal count
     private int workersCount;
     private int nursesCount;
@@ -108,6 +108,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.allWorkers = new LinkedList<>();
         this.allDoctors = new LinkedList<>();
         this.allNurses = new LinkedList<>();
+        this.allPatients = new LinkedList<>();
         for (int i = 0; i < workersCount; i++) {
             Personal worker = new Personal();
             availableWorkers.add(worker);
@@ -165,10 +166,17 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return patientWaitingRoomGenerator;
     }
 
-//    public EvenRandomGenerator getPatientRegistrationGenerator() {
-//        return patientRegistrationGenerator;
-//    }
+    public void addPatient(Patient patient){
+        this.allPatients.add(patient);
+    }
 
+    public void removePatient(Patient patient){
+        this.allPatients.remove(patient);
+    }
+
+    public LinkedList<Patient> getAllPatients(){
+        return this.allPatients;
+    }
 
     public int getReplicationNonComingPatients() {
         return replicationNonComingPatients;
@@ -541,6 +549,18 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.delegates.add(delegate);
     }
 
+    public LinkedList<Personal> getAllWorkers() {
+        return allWorkers;
+    }
+
+    public LinkedList<Personal> getAllDoctors() {
+        return allDoctors;
+    }
+
+    public LinkedList<Personal> getAllNurses() {
+        return allNurses;
+    }
+
     public void refreshGUI(Event event) {
         //TODO rework to ENUM?
         switch (event.getClass().getSimpleName()) {
@@ -581,7 +601,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
                 delegates.get(0).refreshSimTime(this);
                 delegates.get(0).refreshProgressBar(this);
                 break;
-
         }
+        delegates.get(0).refreshPatients(this);
     }
 }

@@ -18,4 +18,5 @@ public class Personal {
     public void setWorkTime(double workTime) {
         this.workTime = workTime;
     }
+
 }

@@ -9,4 +9,5 @@ public interface SimDelegate {
     void refreshExamination(VaccinationCentreSimulationCore core);
     void refreshVaccination(VaccinationCentreSimulationCore core);
     void refreshWaitingRoom(VaccinationCentreSimulationCore core);
+    void refreshPatients(VaccinationCentreSimulationCore core);
 }
