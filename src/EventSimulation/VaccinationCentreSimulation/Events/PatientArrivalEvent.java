@@ -1,6 +1,5 @@
 package EventSimulation.VaccinationCentreSimulation.Events;
 
-import EventSimulation.Event;
 import EventSimulation.VaccinationCentreSimulation.Entities.Patient;
 import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
