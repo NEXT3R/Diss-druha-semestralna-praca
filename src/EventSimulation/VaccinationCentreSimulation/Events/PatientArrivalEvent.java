@@ -16,6 +16,7 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
     @Override
     protected void execute() {
         if (((VaccinationCentreSimulationCore) super.eventCore).patientDidArrive()) {
+            ((VaccinationCentreSimulationCore)super.eventCore).addPatient(super.patient);
             Queue<Patient> queue = ((VaccinationCentreSimulationCore) super.eventCore).getRegistrationQueue();
             LinkedList<Personal> workers = ((VaccinationCentreSimulationCore) super.eventCore).getAvailableWorkers();
             if (queue.size() == 0 && workers.size() > 0) {
@@ -42,7 +43,6 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
 
     private void planNewArrival() {
         Patient newPatient = new Patient(super.time + 60.0);
-        ((VaccinationCentreSimulationCore)super.eventCore).addPatient(newPatient);
         super.eventCore.getEvents().add(
                 new PatientArrivalEvent(newPatient.getArrivalTime(),
                         ((VaccinationCentreSimulationCore) super.eventCore), newPatient));

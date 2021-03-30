@@ -215,6 +215,7 @@ public class AppForm extends JFrame implements SimDelegate {
 
     @Override
     public void afterSimulationEvent(VaccinationCentreSimulationCore core) {
+        refreshPatients(core);
         runButton.setEnabled(true);
         this.refreshRegistration(core);
         this.refreshExamination(core);
