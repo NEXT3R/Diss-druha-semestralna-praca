@@ -1,4 +1,4 @@
-package EventSimulation.Generators;
+package Simulation.Generators;
 
 import Simulation.RandomSeedGenerator;
 

@@ -1,4 +1,4 @@
-package EventSimulation.Generators;
+package Simulation.Generators;
 
 import Simulation.RandomSeedGenerator;
 
@@ -18,7 +18,7 @@ public class ExponentialRandomGenerator extends CustomRandomGenerator{
     }
 
     public double getExponentialValue() {
-        return -Math.log(this.randomExponentialValueGen.nextDouble()) / (1.0 / expMean);
+        return -Math.log((1-this.randomExponentialValueGen.nextDouble())) / (1.0 / expMean);
     }
 
     @Override

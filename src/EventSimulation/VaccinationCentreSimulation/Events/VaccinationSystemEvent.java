@@ -2,7 +2,7 @@ package EventSimulation.VaccinationCentreSimulation.Events;
 
 import EventSimulation.EventSimulationCore;
 
-public class VaccinationSystemEvent extends VaccinationCentreEvent{
+public class VaccinationSystemEvent extends VaccinationCentreEvent {
     private long sleepDuration;
     public VaccinationSystemEvent(double time, EventSimulationCore eventCore, long sleepDuration) {
         super(time, eventCore);
@@ -16,6 +16,8 @@ public class VaccinationSystemEvent extends VaccinationCentreEvent{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        eventCore.getEvents().add(new VaccinationSystemEvent(eventCore.getActualSimulationTime() + 60,eventCore,sleepDuration));
+        if(this.time < super.eventCore.getRequestedSimulationTime()) {
+            eventCore.getEvents().add(new VaccinationSystemEvent(eventCore.getActualSimulationTime() + 60, eventCore, super.eventCore.getSleepDuration()));
+        }
     }
 }

@@ -1,12 +1,10 @@
-package EventSimulation.GUI;
+package EventSimulation.VaccinationCentreSimulation.GUI;
 
 import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 
 public class PersonalFrame extends JFrame {

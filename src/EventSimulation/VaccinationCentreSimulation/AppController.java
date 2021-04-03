@@ -9,13 +9,13 @@ public class AppController {
 
 
     public void simulate(int workersC, int doctorsC, int nursesC, int seed, double requestedSimulationTime,
-                         int replicationsCount,List<SimDelegate> delegates,boolean turbo,long sleepTime) {
+                         int replicationsCount,List<SimDelegate> delegates,boolean turbo,long sleepTime, int patientsC) {
         if (seed != -1) {
             RandomSeedGenerator.initialize(seed);
         } else {
             RandomSeedGenerator.initialize();
         }
-        vCSC = new VaccinationCentreSimulationCore(requestedSimulationTime,workersC,doctorsC,nursesC);
+        vCSC = new VaccinationCentreSimulationCore(requestedSimulationTime,workersC,doctorsC,nursesC,patientsC);
         for (SimDelegate delegate : delegates) {
             vCSC.registerDelegate(delegate);
         }
@@ -38,4 +38,9 @@ public class AppController {
             vCSC.continueReplication();
     }
 
+    public void setSpeed(long speed){
+        if(vCSC!= null){
+            vCSC.setSleepDuration(speed);
+        }
+    }
 }

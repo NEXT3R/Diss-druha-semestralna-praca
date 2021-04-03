@@ -1,4 +1,4 @@
-package EventSimulation.GUI;
+package EventSimulation.VaccinationCentreSimulation.GUI;
 
 import EventSimulation.VaccinationCentreSimulation.AppController;
 import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
@@ -6,10 +6,12 @@ import EventSimulation.VaccinationCentreSimulation.SimDelegate;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -63,26 +65,36 @@ public class AppForm extends JFrame implements SimDelegate {
     private JLabel vacPersAvgUtilL;
     private JSlider speedSlider;
     private JLabel currentTimeL;
-    private JButton displayRegButton;
     private JButton displayPatientsButton;
+    private JTextField patientsCountL;
+    private JTabbedPane tabbedPane1;
+    private JTable workersTab;
+    private JTable doctorsTab;
+    private JTable nursesTab;
     private AppController controller;
     private boolean paused;
     private boolean turbo;
-    private PersonalFrame personalFrame;
     private PatientFrame patientFrame;
+    private DefaultTableModel dtmW;
+    private DefaultTableModel dtmD;
+    private DefaultTableModel dtmN;
+    private String[] tableColumns = {"Id", "Utilization", "State"};
+
     public AppForm(AppController controller) {
         this.controller = controller;
         this.setup();
         this.paused = false;
         this.turbo = false;
-        this.personalFrame = new PersonalFrame();
         this.patientFrame = new PatientFrame();
         ArrayList<SimDelegate> delegates = new ArrayList<>();
         delegates.add(this);
+
+        redeclareTables(tableColumns);
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 resetGUI();
+                redeclareTables(tableColumns);
                 controller.simulate(
                         Integer.parseInt(workersTF.getText()),
                         Integer.parseInt(doctorsTF.getText()),
@@ -92,7 +104,8 @@ public class AppForm extends JFrame implements SimDelegate {
                         Integer.parseInt(repCountTF.getText()),
                         delegates,
                         turbo,
-                        1000-speedSlider.getValue());
+                        1000 - speedSlider.getValue(),
+                        Integer.parseInt(patientsCountL.getText()));
             }
         });
         stopButton.addActionListener(new ActionListener() {
@@ -123,16 +136,17 @@ public class AppForm extends JFrame implements SimDelegate {
                 turbo = turboCheckBox.isSelected();
             }
         });
-        displayRegButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                personalFrame.setVisible(true);
-            }
-        });
+
         displayPatientsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 patientFrame.setVisible(true);
+            }
+        });
+        speedSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                controller.setSpeed(1000 - speedSlider.getValue());
             }
         });
     }
@@ -165,6 +179,16 @@ public class AppForm extends JFrame implements SimDelegate {
         this.setVisible(true);
     }
 
+    private void redeclareTables(String[] tableColumns) {
+        dtmW = new DefaultTableModel(tableColumns, Integer.parseInt(workersTF.getText()));
+        dtmD = new DefaultTableModel(tableColumns, Integer.parseInt(doctorsTF.getText()));
+        dtmN = new DefaultTableModel(tableColumns, Integer.parseInt(nursesTF.getText()));
+
+        workersTab.setModel(dtmW);
+        doctorsTab.setModel(dtmD);
+        nursesTab.setModel(dtmN);
+    }
+
     private void resetGUI() {
         paused = false;
         progressRepBar.setValue(0);
@@ -188,10 +212,10 @@ public class AppForm extends JFrame implements SimDelegate {
         this.simMinutes.setText("Minutes: " + (int) minute);
         this.simSeconds.setText("Seconds: " + (int) second);
 
-        double startHour = 8*60*60;
+        double startHour = 8 * 60 * 60;
         double currentHour = 8 + hour;
 
-        this.currentTimeL.setText(String.format("%02d:%02d:%02d",(int)(currentHour%24), (int)minute ,(int)second));
+        this.currentTimeL.setText(String.format("%02d:%02d:%02d", (int) (currentHour % 24), (int) minute, (int) second));
     }
 
     @Override
@@ -225,6 +249,25 @@ public class AppForm extends JFrame implements SimDelegate {
         this.refreshWaitingRoom(core);
     }
 
+
+    public class CustomTableCellRenderer extends DefaultTableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value,
+                            isSelected, hasFocus,
+                            row, column);
+
+            if (value.equals("AVAILABLE")) {
+                c.setBackground(Color.GREEN);
+                c.setForeground(Color.BLACK);
+            } else if(value.equals("OCCUPIED")){
+                c.setBackground(Color.red);
+                c.setForeground(Color.WHITE);
+            }
+            return c;
+        }
+    }
+
     @Override
     public void refreshRegistration(VaccinationCentreSimulationCore core) {
         regQL.setText(String.format("Patients in queue: " + core.getRegQueueSize()));
@@ -241,7 +284,29 @@ public class AppForm extends JFrame implements SimDelegate {
                 ((core.getSimWorkersUtilization() * 100 + ((core.getWorkersUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
 
-       personalFrame.refreshRegistration(core);
+        LinkedList<Personal> personal = core.getAllWorkers();
+        LinkedList<Personal> available = core.getAvailableWorkers();
+
+        for (int i = 0; i < personal.size(); i++) {
+
+            for (int j = 0; j < tableColumns.length; j++) {
+                String el = "";
+                if (j == 0) {
+                    el = "Worker " + (i + 1);
+                } else if (j == 1) {
+                    el = String.format("%.4f", 100 * personal.get(i).getWorkTime() / core.getActualSimulationTime()) + "%";
+                } else if (j == 2) {
+                    if (available.contains(personal.get(i))) {
+                        el = "AVAILABLE";
+                    } else {
+                        el = "OCCUPIED";
+                    }
+                }
+                dtmW.setValueAt(el, i, j);
+            }
+        }
+        workersTab.setModel(dtmW);
+        workersTab.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer());
 
     }
 
@@ -259,13 +324,36 @@ public class AppForm extends JFrame implements SimDelegate {
         examPersAvgUtilL.setText(String.format("Average doctor utilization: %.4f",
                 ((core.getSimDoctorsUtilization() * 100 + ((core.getDoctorsUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
-        personalFrame.refreshExamination(core);
+
+        LinkedList<Personal> personal = core.getAllDoctors();
+        LinkedList<Personal> available = core.getAvailableDoctors();
+
+        for (int i = 0; i < personal.size(); i++) {
+
+            for (int j = 0; j < tableColumns.length; j++) {
+                String el = "";
+                if (j == 0) {
+                    el = "Doctor " + (i + 1);
+                } else if (j == 1) {
+                    el = String.format("%.4f", 100 * personal.get(i).getWorkTime() / core.getActualSimulationTime()) + "%";
+                } else if (j == 2) {
+                    if (available.contains(personal.get(i))) {
+                        el = "AVAILABLE";
+                    } else {
+                        el = "OCCUPIED";
+                    }
+                }
+                dtmD.setValueAt(el, i, j);
+            }
+        }
+        doctorsTab.setModel(dtmD);
+        doctorsTab.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer());
     }
 
     @Override
     public void refreshVaccination(VaccinationCentreSimulationCore core) {
         vacQL.setText("Patients in queue: " + core.getVacQueueSize());
-        vacQAvgWTL.setText(String.format("Average queue waiting time: %.4f",  (core.getSimAvgVacQ() + core.getVaccinationWaitingTime() / core.getVaccinatedPatients()) / core.getActualReplication()));
+        vacQAvgWTL.setText(String.format("Average queue waiting time: %.4f", (core.getSimAvgVacQ() + core.getVaccinationWaitingTime() / core.getVaccinatedPatients()) / core.getActualReplication()));
         vacQAvgLL.setText(String.format("Average queue length: %.4f",
                 (core.getSimVacWTime() + ((core.getVaccinationWaitingTime() / core.getActualSimulationTime())))
                         / core.getActualReplication()));
@@ -273,10 +361,32 @@ public class AppForm extends JFrame implements SimDelegate {
         vacPersOccupiedL.setText("Occupied nurses:" + (core.getNursesCount() - core.getNursesSize()));
         vacPersUtilL.setText(String.format("Nurse utilization: %.4f", (core.getNursesUtilization() /
                 core.getActualSimulationTime()) * 100));
-        vacPersAvgUtilL.setText(String.format("Average nurse utilization: %.4f" ,
+        vacPersAvgUtilL.setText(String.format("Average nurse utilization: %.4f",
                 ((core.getSimNursesUtilization() * 100 + ((core.getNursesUtilization() /
                         core.getActualSimulationTime()) * 100)) / core.getActualReplication())) + "%");
-        personalFrame.refreshVaccination(core);
+        LinkedList<Personal> personal = core.getAllNurses();
+        LinkedList<Personal> available = core.getAvailableNurses();
+
+        for (int i = 0; i < personal.size(); i++) {
+
+            for (int j = 0; j < tableColumns.length; j++) {
+                String el = "";
+                if (j == 0) {
+                    el = "Nurse " + (i + 1);
+                } else if (j == 1) {
+                    el = String.format("%.4f", 100 * personal.get(i).getWorkTime() / core.getActualSimulationTime()) + "%";
+                } else if (j == 2) {
+                    if (available.contains(personal.get(i))) {
+                        el = "AVAILABLE";
+                    } else {
+                        el = "OCCUPIED";
+                    }
+                }
+                dtmN.setValueAt(el, i, j);
+            }
+        }
+        nursesTab.setModel(dtmN);
+        nursesTab.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer());
     }
 
     @Override

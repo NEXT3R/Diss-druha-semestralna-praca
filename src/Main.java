@@ -1,4 +1,4 @@
-import EventSimulation.GUI.AppForm;
+import EventSimulation.VaccinationCentreSimulation.GUI.AppForm;
 import EventSimulation.VaccinationCentreSimulation.AppController;
 
 public class Main {

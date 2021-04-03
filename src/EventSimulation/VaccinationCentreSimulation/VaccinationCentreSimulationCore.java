@@ -2,10 +2,11 @@ package EventSimulation.VaccinationCentreSimulation;
 
 import EventSimulation.Event;
 import EventSimulation.EventSimulationCore;
-import EventSimulation.Generators.UniformContinousRandomGenerator;
-import EventSimulation.Generators.UniformDiscreteRandomGenerator;
-import EventSimulation.Generators.ExponentialRandomGenerator;
-import EventSimulation.Generators.TriangularRandomGenerator;
+import EventSimulation.VaccinationCentreSimulation.Events.VaccinationSystemEvent;
+import Simulation.Generators.UniformContinousRandomGenerator;
+import Simulation.Generators.UniformDiscreteRandomGenerator;
+import Simulation.Generators.ExponentialRandomGenerator;
+import Simulation.Generators.TriangularRandomGenerator;
 import EventSimulation.VaccinationCentreSimulation.Entities.Patient;
 import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.Events.PatientArrivalEvent;
@@ -74,17 +75,18 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private int replicationNonComingPatients;
     //GUI
     private List<SimDelegate> delegates;
-    private boolean turbo;
 
-    public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount) {
+    private double nextPatientArrival;
+    public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount,int patientsCount) {
         this.delegates = new ArrayList<>();
         super.requestedSimulationTime = replicationTime;
         this.workersCount = workersCount;
         this.doctorsCount = doctorsCount;
         this.nursesCount = nursesCount;
-
+        this.nextPatientArrival = replicationTime / patientsCount;
         this.initGenerators(workersCount, doctorsCount, nursesCount);
 //        this.exportSamplesForTests();
+
     }
 
     private void exportSamplesForTests() {
@@ -156,6 +158,10 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 
     public boolean patientDidArrive() {
         return patientCameRandom.nextDouble() < 1.0 - this.patientCameProbability;
+    }
+
+    public double getNextPatientArrival() {
+        return nextPatientArrival;
     }
 
     public TriangularRandomGenerator getPatientVaccinationGenerator() {
@@ -516,6 +522,9 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.initLists(workersCount, doctorsCount, nursesCount);
         Patient patient = new Patient(0);
         super.events.clear();
+        if(!turbo){
+            events.add(new VaccinationSystemEvent(60,this,this.sleepDuration));
+        }
         super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
         this.nonComingPatients = nonComingPatientsGenerator.getDiscreteUniformValue();
         this.patientCameProbability = nonComingPatients / (requestedSimulationTime / 60);

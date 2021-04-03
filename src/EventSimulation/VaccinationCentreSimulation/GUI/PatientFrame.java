@@ -1,4 +1,4 @@
-package EventSimulation.GUI;
+package EventSimulation.VaccinationCentreSimulation.GUI;
 
 import EventSimulation.VaccinationCentreSimulation.Entities.Patient;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
