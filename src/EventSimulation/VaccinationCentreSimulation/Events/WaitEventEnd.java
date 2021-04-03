@@ -18,5 +18,6 @@ public class WaitEventEnd extends VaccinationCentreEvent{
         super.patient.setWaitEndTime(super.time);
         waitingRoom.remove(super.patient);
         ((VaccinationCentreSimulationCore)super.getEventCore()).removePatient(super.patient);
+        ((VaccinationCentreSimulationCore) super.eventCore).onWaitEnd(super.patient.getWaitDuration());
     }
 }

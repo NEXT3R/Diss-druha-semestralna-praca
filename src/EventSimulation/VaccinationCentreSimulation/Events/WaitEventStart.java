@@ -15,7 +15,6 @@ public class WaitEventStart extends VaccinationCentreEvent {
     @Override
     protected void execute() {
         PriorityQueue<Event> scheduler = super.eventCore.getEvents();
-        LinkedList<Patient> waitingRoom = ((VaccinationCentreSimulationCore) super.eventCore).getWaitingRoom();
         super.patient.setWaitStartTime(super.time);
         scheduler.add(new WaitEventEnd(patient.getWaitDuration() + super.time,
                 (VaccinationCentreSimulationCore) super.eventCore,super.patient));

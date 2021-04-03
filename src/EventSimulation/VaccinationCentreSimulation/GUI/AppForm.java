@@ -392,6 +392,10 @@ public class AppForm extends JFrame implements SimDelegate {
     @Override
     public void refreshWaitingRoom(VaccinationCentreSimulationCore core) {
         waitRL.setText("Patients in waiting room: " + core.getWaitingRoomSize());
+        waitAvgWTL.setText(String.format("Average waiting time: %.4f", (core.getSimAvgWaitQ() + core.getWaitingRoomTime() / core.getReleasedPatients()) / core.getActualReplication()));
+        waitAvgLL.setText(String.format("Average queue length: %.4f",
+                (core.getSimWRoomTime() + ((core.getWaitingRoomTime() / core.getActualSimulationTime())))
+                        / core.getActualReplication()));
     }
 
     @Override

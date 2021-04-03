@@ -51,6 +51,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private double registeredPatients;
     private double examinedPatients;
     private double vaccinatedPatients;
+    private double releasedPatients;
     //stats
     private double simRegWTime;
     private double simExamWTime;
@@ -65,6 +66,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private double simAvgRegQ;
     private double simAvgExamQ;
     private double simAvgVacQ;
+    private double simAvgWaitQ;
     private double doctorsUtilization;
     private double workersUtilization;
     private double nursesUtilization;
@@ -77,7 +79,8 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     private List<SimDelegate> delegates;
 
     private double nextPatientArrival;
-    public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount,int patientsCount) {
+
+    public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount, int patientsCount) {
         this.delegates = new ArrayList<>();
         super.requestedSimulationTime = replicationTime;
         this.workersCount = workersCount;
@@ -172,15 +175,15 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return patientWaitingRoomGenerator;
     }
 
-    public void addPatient(Patient patient){
+    public void addPatient(Patient patient) {
         this.allPatients.add(patient);
     }
 
-    public void removePatient(Patient patient){
+    public void removePatient(Patient patient) {
         this.allPatients.remove(patient);
     }
 
-    public LinkedList<Patient> getAllPatients(){
+    public LinkedList<Patient> getAllPatients() {
         return this.allPatients;
     }
 
@@ -302,6 +305,11 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
             nursesUtilization += allNurses.get(i).getWorkTime();
         }
         nursesUtilization = nursesUtilization / nursesCount;
+    }
+
+    public void onWaitEnd(double waitTime) {
+        releasedPatients++;
+        this.waitingRoomTime += waitTime;
     }
 
     public void increaseNonComingPatients() {
@@ -442,6 +450,10 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return simAvgExamQ;
     }
 
+    public double getSimAvgWaitQ() {
+        return simAvgWaitQ;
+    }
+
     public double getSimAvgVacQ() {
         return simAvgVacQ;
     }
@@ -478,6 +490,10 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return vaccinatedPatients;
     }
 
+    public double getReleasedPatients() {
+        return releasedPatients;
+    }
+
     @Override
     public void afterSimulation() {
         this.delegates.get(0).afterSimulationEvent(this);
@@ -506,6 +522,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         simAvgRegQ = 0;
         simAvgExamQ = 0;
         simAvgVacQ = 0;
+        simAvgWaitQ = 0;
         simWorkersUtilization = 0;
         simDoctorsUtilization = 0;
         simNursesUtilization = 0;
@@ -516,14 +533,15 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.registeredPatients = 0;
         this.examinedPatients = 0;
         this.vaccinatedPatients = 0;
+        this.releasedPatients = 0;
 
         this.initQueues();
         this.initTimes();
         this.initLists(workersCount, doctorsCount, nursesCount);
         Patient patient = new Patient(0);
         super.events.clear();
-        if(!turbo){
-            events.add(new VaccinationSystemEvent(60,this,this.sleepDuration));
+        if (!turbo) {
+            events.add(new VaccinationSystemEvent(60, this, this.sleepDuration));
         }
         super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
         this.nonComingPatients = nonComingPatientsGenerator.getDiscreteUniformValue();
@@ -547,6 +565,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
             simAvgRegQ += this.registrationWaitingTime / this.registeredPatients;
             simAvgExamQ += this.examinationWaitingTime / this.examinedPatients;
             simAvgVacQ += this.vaccinationWaitingTime / this.vaccinatedPatients;
+            simAvgWaitQ += this.waitingRoomTime / this.releasedPatients;
             simWorkersUtilization += this.workersUtilization / this.actualSimulationTime;
             simDoctorsUtilization += this.doctorsUtilization / this.actualSimulationTime;
             simNursesUtilization += this.nursesUtilization / this.actualSimulationTime;
