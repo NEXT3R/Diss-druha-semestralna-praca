@@ -24,6 +24,22 @@ public class AppController {
         vCSC.simulateOnCustomThread(replicationsCount);
     }
 
+    public void experiment(int workersC, int doctorsC, int nursesC, int seed, double requestedSimulationTime,
+                         int replicationsCount,List<SimDelegate> delegates,boolean turbo,long sleepTime, int patientsC) {
+        if (seed != -1) {
+            RandomSeedGenerator.initialize(seed);
+        } else {
+            RandomSeedGenerator.initialize();
+        }
+        vCSC = new VaccinationCentreSimulationCore(requestedSimulationTime,workersC,doctorsC,nursesC,patientsC);
+        for (SimDelegate delegate : delegates) {
+            vCSC.registerDelegate(delegate);
+        }
+        vCSC.setTurbo(turbo);
+        vCSC.setSleepDuration(sleepTime);
+        vCSC.simulateOnCustomThread(replicationsCount);
+    }
+
     public void stop() {
         if(vCSC!= null)
             vCSC.stop();

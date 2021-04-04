@@ -4,6 +4,13 @@ import EventSimulation.VaccinationCentreSimulation.AppController;
 import EventSimulation.VaccinationCentreSimulation.Entities.Personal;
 import EventSimulation.VaccinationCentreSimulation.SimDelegate;
 import EventSimulation.VaccinationCentreSimulation.VaccinationCentreSimulationCore;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -71,6 +78,11 @@ public class AppForm extends JFrame implements SimDelegate {
     private JTable workersTab;
     private JTable doctorsTab;
     private JTable nursesTab;
+    private JPanel chartPane;
+    private JButton runExperimentButton;
+    private JTextField docMinTF;
+    private JTextField docMaxTF;
+    private JTextField repPerResultTF;
     private AppController controller;
     private boolean paused;
     private boolean turbo;
@@ -88,7 +100,7 @@ public class AppForm extends JFrame implements SimDelegate {
         this.patientFrame = new PatientFrame();
         ArrayList<SimDelegate> delegates = new ArrayList<>();
         delegates.add(this);
-
+        initGraph();
         redeclareTables(tableColumns);
         runButton.addActionListener(new ActionListener() {
             @Override
@@ -149,6 +161,22 @@ public class AppForm extends JFrame implements SimDelegate {
                 controller.setSpeed(1000 - speedSlider.getValue());
             }
         });
+        runExperimentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                controller.experiment(
+                        Integer.parseInt(workersTF.getText()),
+                        Integer.parseInt(doctorsTF.getText()),
+                        Integer.parseInt(nursesTF.getText()),
+                        Integer.parseInt(seedTF.getText()),
+                        Double.parseDouble(reqSimTimeTF.getText()),
+                        Integer.parseInt(repCountTF.getText()),
+                        delegates,
+                        true,
+                        0,
+                        Integer.parseInt(patientsCountL.getText()));
+            }
+        });
     }
 
     private void setup() {
@@ -197,6 +225,32 @@ public class AppForm extends JFrame implements SimDelegate {
         progressTimeLabel.setText("0%");
     }
 
+    private void initGraph(){
+        var series = new XYSeries("Average examination queue length");
+        series.add(18, 567);
+        series.add(20, 612);
+        series.add(25, 800);
+        series.add(30, 980);
+        series.add(40, 1410);
+        series.add(50, 2350);
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Average examination queue length per doctor count",
+                "Doctors count",
+                "Average queue length",
+                dataset,
+                PlotOrientation.HORIZONTAL,
+                false,
+                true,
+                false
+        );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPane.add(chartPanel);
+        pack();
+    }
     @Override
     public void refreshSimTime(VaccinationCentreSimulationCore core) {
         double time = core.getActualSimulationTime();
@@ -248,6 +302,8 @@ public class AppForm extends JFrame implements SimDelegate {
         this.refreshVaccination(core);
         this.refreshWaitingRoom(core);
     }
+
+
 
 
     public class CustomTableCellRenderer extends DefaultTableCellRenderer {
