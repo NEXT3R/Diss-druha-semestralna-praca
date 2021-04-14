@@ -6,12 +6,12 @@ import VaccinationCentreSimulation.VaccinationCentreSimulationCore;
 import javax.swing.*;
 import java.util.LinkedList;
 
-public class PatientFrame extends JFrame {
+public class RegistrationForm extends JFrame {
 
     private JList patients;
     private JPanel rootPanel;
 
-    public PatientFrame() {
+    public RegistrationForm() {
         this.setTitle("Personal states");
         add(rootPanel);
         setExtendedState(JFrame.MAXIMIZED_BOTH);

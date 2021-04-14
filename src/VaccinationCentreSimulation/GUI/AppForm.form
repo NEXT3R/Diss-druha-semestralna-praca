@@ -47,7 +47,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="5"/>
+                          <text value="21"/>
                         </properties>
                       </component>
                       <component id="41e38" class="javax.swing.JLabel">
@@ -83,7 +83,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="6"/>
+                          <text value="30"/>
                         </properties>
                       </component>
                     </children>
@@ -103,7 +103,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="3"/>
+                          <text value="20"/>
                         </properties>
                       </component>
                       <component id="aa87b" class="javax.swing.JLabel">
@@ -150,7 +150,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="540"/>
+                          <text value="4000"/>
                         </properties>
                       </component>
                       <component id="b316e" class="javax.swing.JLabel">
@@ -401,7 +401,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="1"/>
+                          <text value="1000"/>
                         </properties>
                       </component>
                       <component id="e0cda" class="javax.swing.JLabel">

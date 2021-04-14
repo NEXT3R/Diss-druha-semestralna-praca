@@ -92,7 +92,7 @@ public class AppForm extends JFrame implements SimDelegate {
     private AppController controller;
     private boolean paused;
     private boolean turbo;
-    private PatientFrame patientFrame;
+    private RegistrationForm registrationForm;
     private DefaultTableModel dtmW;
     private DefaultTableModel dtmD;
     private DefaultTableModel dtmN;
@@ -109,7 +109,7 @@ public class AppForm extends JFrame implements SimDelegate {
         this.setup();
         this.paused = false;
         this.turbo = false;
-        this.patientFrame = new PatientFrame();
+        this.registrationForm = new RegistrationForm();
         ArrayList<SimDelegate> delegates = new ArrayList<>();
         delegates.add(this);
         initGraph();
@@ -167,7 +167,7 @@ public class AppForm extends JFrame implements SimDelegate {
         displayPatientsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                patientFrame.setVisible(true);
+                registrationForm.setVisible(true);
             }
         });
         speedSlider.addChangeListener(new ChangeListener() {
@@ -516,7 +516,7 @@ public class AppForm extends JFrame implements SimDelegate {
 
     @Override
     public void refreshPatients(VaccinationCentreSimulationCore core) {
-        patientFrame.refreshPatients(core);
+        registrationForm.refreshPatients(core);
     }
 
 }

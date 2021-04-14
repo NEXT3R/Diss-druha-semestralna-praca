@@ -138,7 +138,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.patientWaitingRoomGenerator = new Random(RandomSeedGenerator.getNextSeed());
         this.patientExaminationGenerator = new ExponentialRandomGenerator(260);
         this.patientRegistrationGenerator = new UniformContinousRandomGenerator(140, 220);
-        this.nonComingPatientsGenerator = new UniformDiscreteRandomGenerator((int) (5 * (totalPeopleToCome / 540)), (int) (25 * (totalPeopleToCome / 540)));
+        this.nonComingPatientsGenerator = new UniformDiscreteRandomGenerator( 5, 25 );
         this.patientVaccinationGenerator = new TriangularRandomGenerator(20, 100, 75);
         this.patientCameRandom = new Random(RandomSeedGenerator.getNextSeed());
         patientWorkerDecisions = new ArrayList<>();
@@ -572,6 +572,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.initQueues();
         this.initTimes();
         this.initLists(workersCount, doctorsCount, nursesCount);
+
         Patient patient = new Patient(0);
         super.events.clear();
         if (!turbo) {
@@ -579,7 +580,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         }
         super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
         this.nonComingPatients = nonComingPatientsGenerator.getDiscreteUniformValue();
-        this.patientCameProbability = nonComingPatients / (requestedSimulationTime / (requestedSimulationTime / totalPeopleToCome));
+        this.patientCameProbability = nonComingPatients / (requestedSimulationTime / 60);
         this.replicationNonComingPatients = 0;
         this.actualSimulationTime = 0;
     }
