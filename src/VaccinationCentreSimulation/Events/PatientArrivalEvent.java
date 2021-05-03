@@ -43,7 +43,7 @@ public class PatientArrivalEvent extends VaccinationCentreEvent {
 
     private void planNewArrival() {
         Patient newPatient = new Patient(super.time +
-                ((VaccinationCentreSimulationCore)super.eventCore).getNextPatientArrival());
+                ((VaccinationCentreSimulationCore)super.eventCore).getPatientArrivalIntensity());
         super.eventCore.getEvents().add(
                 new PatientArrivalEvent(newPatient.getArrivalTime(),
                         ((VaccinationCentreSimulationCore) super.eventCore), newPatient));

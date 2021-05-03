@@ -79,8 +79,8 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
     //GUI
     private List<SimDelegate> delegates;
     private boolean experiment = false;
-    private double nextPatientArrival;
-    private double totalPeopleToCome;
+    private double patientArrivalIntensity;
+    private double allOrderedPatients;
 
     public VaccinationCentreSimulationCore(double replicationTime, int workersCount, int doctorsCount, int nursesCount, int patientsCount) {
         this.delegates = new ArrayList<>();
@@ -88,8 +88,8 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         this.workersCount = workersCount;
         this.doctorsCount = doctorsCount;
         this.nursesCount = nursesCount;
-        this.nextPatientArrival = replicationTime / patientsCount;
-        this.totalPeopleToCome = patientsCount;
+        this.patientArrivalIntensity = replicationTime / patientsCount;
+        this.allOrderedPatients = patientsCount;
         this.initGenerators(workersCount, doctorsCount, nursesCount);
 //        this.exportSamplesForTests();
 
@@ -166,8 +166,8 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
         return patientCameRandom.nextDouble() < 1.0 - this.patientCameProbability;
     }
 
-    public double getNextPatientArrival() {
-        return nextPatientArrival;
+    public double getPatientArrivalIntensity() {
+        return patientArrivalIntensity;
     }
 
     public TriangularRandomGenerator getPatientVaccinationGenerator() {
@@ -536,7 +536,7 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
 //        System.out.println("Average examination queue length is: " + (this.simAvgExamQ / super.actualReplication));
 //        System.out.println("Average vaccination waiting time in queue is: " + (this.simVacWTime / super.actualReplication));
 //        System.out.println("Average vaccination queue length is: " + (this.simAvgVacQ / super.actualReplication));
-        System.out.println(this.totalPeopleToCome - this.releasedPatients + " people did not arrive.");
+        System.out.println(this.allOrderedPatients - this.releasedPatients + " people did not arrive.");
     }
 
     @Override
@@ -579,9 +579,8 @@ public class VaccinationCentreSimulationCore extends EventSimulationCore {
             events.add(new VaccinationSystemEvent(60, this, this.sleepDuration));
         }
         super.events.add(new PatientArrivalEvent(patient.getArrivalTime(), this, patient));
-        this.nonComingPatients = nonComingPatientsGenerator.getDiscreteUniformValue();
-        this.patientCameProbability = nonComingPatients / (requestedSimulationTime / 60);
-        this.replicationNonComingPatients = 0;
+        patientCameProbability =(nonComingPatientsGenerator.getDiscreteUniformValue() / 540.0) * allOrderedPatients / (requestedSimulationTime
+                / patientArrivalIntensity);
         this.actualSimulationTime = 0;
     }
 
